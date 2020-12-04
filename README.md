@@ -13,7 +13,7 @@ Port of [chriso's library](https://github.com/chriso/validator.js).
 1\. Add dependency to your package's `pubspec.yaml` file:
 
     dependencies:
-      validators: ^2.0.0 # change to latest version
+      validators: ^2.0.1 # change to latest version
 
 2\. Run from the command line:
 
