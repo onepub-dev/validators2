@@ -49,7 +49,7 @@ RegExp _halfWidth = new RegExp(
     r'[\u0020-\u007E\uFF61-\uFF9F\uFFA0-\uFFDC\uFFE8-\uFFEE0-9a-zA-Z]');
 
 /// check if the string matches the comparison
-bool equals(String str, comparison) {
+bool equals(String? str, comparison) {
   return str == comparison.toString();
 }
 
@@ -77,8 +77,8 @@ bool isEmail(String str) {
 /// * [allowUnderscore] sets if underscores are allowed
 /// * [hostWhitelist] sets the list of allowed hosts
 /// * [hostBlacklist] sets the list of disallowed hosts
-bool isURL(String str,
-    {List<String> protocols = const ['http', 'https', 'ftp'],
+bool isURL(String? str,
+    {List<String?> protocols = const ['http', 'https', 'ftp'],
     bool requireTld = true,
     bool requireProtocol = false,
     bool allowUnderscore = false,
@@ -116,7 +116,7 @@ bool isURL(String str,
   str = split.join('://');
 
   // check hash
-  split = str.split('#');
+  split = str!.split('#');
   str = shift(split);
   hash = split.join('#');
   if (hash != null && hash != "" && new RegExp(r'\s').hasMatch(hash)) {
@@ -124,7 +124,7 @@ bool isURL(String str,
   }
 
   // check query params
-  split = str.split('?');
+  split = str!.split('?');
   str = shift(split);
   query = split.join('?');
   if (query != null && query != "" && new RegExp(r'\s').hasMatch(query)) {
@@ -132,7 +132,7 @@ bool isURL(String str,
   }
 
   // check path
-  split = str.split('/');
+  split = str!.split('/');
   str = shift(split);
   path = split.join('/');
   if (path != null && path != "" && new RegExp(r'\s').hasMatch(path)) {
@@ -140,7 +140,7 @@ bool isURL(String str,
   }
 
   // check auth type urls
-  split = str.split('@');
+  split = str!.split('@');
   if (split.length > 1) {
     auth = shift(split);
     if (auth.indexOf(':') >= 0) {
@@ -194,19 +194,19 @@ bool isURL(String str,
 /// check if the string [str] is IP [version] 4 or 6
 ///
 /// * [version] is a String or an `int`.
-bool isIP(String str, [/*<String | int>*/ version]) {
+bool isIP(String? str, [/*<String | int>*/ version]) {
   version = version.toString();
   if (version == 'null') {
     return isIP(str, 4) || isIP(str, 6);
   } else if (version == '4') {
-    if (!_ipv4Maybe.hasMatch(str)) {
+    if (!_ipv4Maybe.hasMatch(str!)) {
       return false;
     }
     var parts = str.split('.');
     parts.sort((a, b) => int.parse(a) - int.parse(b));
     return int.parse(parts[3]) <= 255;
   }
-  return version == '6' && _ipv6.hasMatch(str);
+  return version == '6' && _ipv6.hasMatch(str!);
 }
 
 /// check if the string [str] is a fully qualified domain name (e.g. domain.com).
@@ -303,32 +303,32 @@ bool isDivisibleBy(String str, n) {
 }
 
 /// check if the string [str] is null
-bool isNull(String str) {
+bool isNull(String? str) {
   return str == null || str.length == 0;
 }
 
 /// check if the length of the string [str] falls in a range
-bool isLength(String str, int min, [int max]) {
+bool isLength(String str, int min, [int? max]) {
   List surrogatePairs = _surrogatePairsRegExp.allMatches(str).toList();
   int len = str.length - surrogatePairs.length;
   return len >= min && (max == null || len <= max);
 }
 
 /// check if the string's length (in bytes) falls in a range.
-bool isByteLength(String str, int min, [int max]) {
+bool isByteLength(String str, int min, [int? max]) {
   return str.length >= min && (max == null || str.length <= max);
 }
 
 /// check if the string is a UUID (version 3, 4 or 5).
-bool isUUID(String str, [version]) {
+bool isUUID(String? str, [version]) {
   if (version == null) {
     version = 'all';
   } else {
     version = version.toString();
   }
 
-  RegExp pat = _uuid[version];
-  return (pat != null && pat.hasMatch(str.toUpperCase()));
+  RegExp? pat = _uuid[version];
+  return (pat != null && pat.hasMatch(str!.toUpperCase()));
 }
 
 /// check if the string is a date
@@ -344,7 +344,7 @@ bool isDate(String str) {
 /// check if the string is a date that's after the specified date
 ///
 /// If `date` is not passed, it defaults to now.
-bool isAfter(String str, [date]) {
+bool isAfter(String? str, [date]) {
   if (date == null) {
     date = new DateTime.now();
   } else if (isDate(date)) {
@@ -355,7 +355,7 @@ bool isAfter(String str, [date]) {
 
   DateTime str_date;
   try {
-    str_date = DateTime.parse(str);
+    str_date = DateTime.parse(str!);
   } catch (e) {
     return false;
   }
@@ -366,7 +366,7 @@ bool isAfter(String str, [date]) {
 /// check if the string is a date that's before the specified date
 ///
 /// If `date` is not passed, it defaults to now.
-bool isBefore(String str, [date]) {
+bool isBefore(String? str, [date]) {
   if (date == null) {
     date = new DateTime.now();
   } else if (isDate(date)) {
@@ -377,7 +377,7 @@ bool isBefore(String str, [date]) {
 
   DateTime str_date;
   try {
-    str_date = DateTime.parse(str);
+    str_date = DateTime.parse(str!);
   } catch (e) {
     return false;
   }
@@ -386,7 +386,7 @@ bool isBefore(String str, [date]) {
 }
 
 /// check if the string is in a array of allowed values
-bool isIn(String str, values) {
+bool? isIn(String? str, values) {
   if (values == null || values.length == 0) {
     return false;
   }
@@ -431,14 +431,14 @@ bool isCreditCard(String str) {
 }
 
 /// check if the string is an ISBN (version 10 or 13)
-bool isISBN(String str, [version]) {
+bool isISBN(String? str, [version]) {
   if (version == null) {
     return isISBN(str, '10') || isISBN(str, '13');
   }
 
   version = version.toString();
 
-  String sanitized = str.replaceAll(new RegExp(r'[\s-]+'), '');
+  String sanitized = str!.replaceAll(new RegExp(r'[\s-]+'), '');
   int checksum = 0;
 
   if (version == '10') {
@@ -577,9 +577,9 @@ var _postalCodePatterns = {
   "ZM": _fiveDigit
 };
 
-bool isPostalCode(String text, String locale, {bool orElse()}) {
+bool isPostalCode(String? text, String locale, {bool orElse()?}) {
   final pattern = _postalCodePatterns[locale];
   return pattern != null
-      ? pattern.hasMatch(text)
+      ? pattern.hasMatch(text!)
       : orElse != null ? orElse() : throw FormatException();
 }

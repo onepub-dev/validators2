@@ -3,22 +3,34 @@ library validator_test;
 import 'package:test/test.dart';
 import 'package:validators/validators.dart' as v;
 
-void check({List valid = const [], List invalid = const [], bool validator(value)}) {
-  valid.forEach((v) => expect(validator(v), true, reason: '"$v" should be valid'));
-  invalid.forEach((v) => expect(validator(v), false, reason: '"$v" should be invalid'));
+void check(
+    {List valid = const [], List invalid = const [], bool? validator(value)?}) {
+  valid.forEach(
+      (v) => expect(validator!(v), true, reason: '"$v" should be valid'));
+  invalid.forEach(
+      (v) => expect(validator!(v), false, reason: '"$v" should be invalid'));
 }
 
 main() {
   test('equals', () {
-    check(validator: (val) => v.equals(val, 'abc'), valid: ['abc'], invalid: ['Abc', '123']);
+    check(
+        validator: (val) => v.equals(val, 'abc'),
+        valid: ['abc'],
+        invalid: ['Abc', '123']);
   });
 
   test('contains', () {
-    check(validator: (val) => v.contains(val, 'foo'), valid: ['foo', 'foobar', 'bazfoo'], invalid: ['Foo', 'bar', '']);
+    check(
+        validator: (val) => v.contains(val, 'foo'),
+        valid: ['foo', 'foobar', 'bazfoo'],
+        invalid: ['Foo', 'bar', '']);
   });
 
   test('Matches', () {
-    check(validator: (val) => v.matches(val, 'abc'), valid: ['abc', 'abcdef', '123abc'], invalid: ['acb', 'ABC']);
+    check(
+        validator: (val) => v.matches(val, 'abc'),
+        valid: ['abc', 'abcdef', '123abc'],
+        invalid: ['acb', 'ABC']);
   });
 
   test('IsEmail', () {
@@ -42,77 +54,93 @@ main() {
   });
 
   test('IsURL', () {
-    check(validator: (val) {
-      return v.isURL(val);
-    }, valid: [
-      'foobar.com',
-      'www.foobar.com',
-      'foobar.com/',
-      'valid.au',
-      'http://www.foobar.com/',
-      'http://www.foobar.com:23/',
-      'http://www.foobar.com:65535/',
-      'http://www.foobar.com:5/',
-      'https://www.foobar.com/',
-      'ftp://www.foobar.com/',
-      'http://www.foobar.com/~foobar',
-      'http://user:pass@www.foobar.com/',
-      'http://127.0.0.1/',
-      'http://10.0.0.0/',
-      'http://10.0.0.0:3000/',
-      'http://189.123.14.13/',
-      'http://duckduckgo.com/?q=%2F',
-      'http://foobar.com/t\$-_.+!*\'(),',
-      'http://localhost:3000/',
-      'http://foobar.com/?foo=bar#baz=qux',
-      'http://foobar.com?foo=bar',
-      'http://foobar.com#baz=qux',
-      'http://www.xn--froschgrn-x9a.net/',
-      'http://xn--froschgrn-x9a.com/',
-      'http://foo--bar.com'
-    ], invalid: [
-      'xyz://foobar.com',
-      'invalid/',
-      'invalid.x',
-      'invalid.',
-      '.com',
-      'http://com/',
-      'http://300.0.0.1/',
-      'mailto:foo@bar.com',
-      'rtmp://foobar.com',
-      'http://www.xn--.com/',
-      'http://xn--.com/',
-      'http:// :pass@www.foobar.com/',
-      'http://www.foobar.com:0/',
-      'http://www.foobar.com:70000/',
-      'http://www.foobar.com:99999/',
-      'http://www.-foobar.com/',
-      'http://www.foobar-.com/',
-      'http://www.foo---bar.com/',
-      'http://www.foo_bar.com/',
-      '',
-      'http://foobar.com/' + new List(2083).join('f'),
-      'http://*.foo.com',
-      '*.foo.com',
-      '!.foo.com',
-      'http://localhost:61500this is an invalid url!!!!'
-    ]);
+    check(
+        validator: (val) {
+          return v.isURL(val);
+        },
+        valid: [
+          'foobar.com',
+          'www.foobar.com',
+          'foobar.com/',
+          'valid.au',
+          'http://www.foobar.com/',
+          'http://www.foobar.com:23/',
+          'http://www.foobar.com:65535/',
+          'http://www.foobar.com:5/',
+          'https://www.foobar.com/',
+          'ftp://www.foobar.com/',
+          'http://www.foobar.com/~foobar',
+          'http://user:pass@www.foobar.com/',
+          'http://127.0.0.1/',
+          'http://10.0.0.0/',
+          'http://10.0.0.0:3000/',
+          'http://189.123.14.13/',
+          'http://duckduckgo.com/?q=%2F',
+          'http://foobar.com/t\$-_.+!*\'(),',
+          'http://localhost:3000/',
+          'http://foobar.com/?foo=bar#baz=qux',
+          'http://foobar.com?foo=bar',
+          'http://foobar.com#baz=qux',
+          'http://www.xn--froschgrn-x9a.net/',
+          'http://xn--froschgrn-x9a.com/',
+          'http://foo--bar.com'
+        ],
+        invalid: [
+          'xyz://foobar.com',
+          'invalid/',
+          'invalid.x',
+          'invalid.',
+          '.com',
+          'http://com/',
+          'http://300.0.0.1/',
+          'mailto:foo@bar.com',
+          'rtmp://foobar.com',
+          'http://www.xn--.com/',
+          'http://xn--.com/',
+          'http:// :pass@www.foobar.com/',
+          'http://www.foobar.com:0/',
+          'http://www.foobar.com:70000/',
+          'http://www.foobar.com:99999/',
+          'http://www.-foobar.com/',
+          'http://www.foobar-.com/',
+          'http://www.foo---bar.com/',
+          'http://www.foo_bar.com/',
+          '',
+          'http://foobar.com/' + List.filled(2083, '').join('f'),
+          'http://*.foo.com',
+          '*.foo.com',
+          '!.foo.com',
+          'http://localhost:61500this is an invalid url!!!!'
+        ]);
 
     expect(v.isURL('www.example.com', requireProtocol: true), false);
     expect(v.isURL('example', requireTld: false), true);
 
-    expect(v.isURL('www.example.com', hostWhitelist: ['www.example.com']), true);
-    expect(v.isURL('www.example.com', hostWhitelist: ['www.another.com']), false);
-    
-    expect(v.isURL('www.example.com', hostBlacklist: ['www.example.com']), false);
-    expect(v.isURL('www.example.com', hostBlacklist: ['www.another.com']), true);
+    expect(
+        v.isURL('www.example.com', hostWhitelist: ['www.example.com']), true);
+    expect(
+        v.isURL('www.example.com', hostWhitelist: ['www.another.com']), false);
+
+    expect(
+        v.isURL('www.example.com', hostBlacklist: ['www.example.com']), false);
+    expect(
+        v.isURL('www.example.com', hostBlacklist: ['www.another.com']), true);
   });
 
   test('IsIP', () {
-    check(
-        validator: (val) => v.isIP(val),
-        valid: ['127.0.0.1', '0.0.0.0', '255.255.255.255', '1.2.3.4', '::1', '2001:db8:0000:1:1:1:1:1'],
-        invalid: ['abc', '256.0.0.0', '0.0.0.256', '26.0.0.256']);
+    check(validator: (val) => v.isIP(val), valid: [
+      '127.0.0.1',
+      '0.0.0.0',
+      '255.255.255.255',
+      '1.2.3.4',
+      '::1',
+      '2001:db8:0000:1:1:1:1:1'
+    ], invalid: [
+      'abc',
+      '256.0.0.0',
+      '0.0.0.256',
+      '26.0.0.256'
+    ]);
   });
 
   test('IsAlpha', () {
@@ -168,7 +196,14 @@ main() {
   test('IsFloat', () {
     check(
       validator: (val) => v.isFloat(val),
-      valid: ['-1.324', '0.32', '-0.324', '-2423.234234', '-0.22250738585072011e-307', '0.22250738585072011e-307'],
+      valid: [
+        '-1.324',
+        '0.32',
+        '-0.324',
+        '-2423.234234',
+        '-0.22250738585072011e-307',
+        '0.22250738585072011e-307'
+      ],
       invalid: ['abc!', 'AB C', ' '],
     );
   });
@@ -206,7 +241,10 @@ main() {
   });
 
   test('IsDivisibleBy', () {
-    check(validator: (val) => v.isDivisibleBy(val, '2'), valid: ['2', '4', '100', '-10'], invalid: ['1', '-1', 'abc']);
+    check(
+        validator: (val) => v.isDivisibleBy(val, '2'),
+        valid: ['2', '4', '100', '-10'],
+        invalid: ['1', '-1', 'abc']);
   });
 
   test('IsNull', () {
@@ -220,15 +258,27 @@ main() {
   });
 
   test('IsLength', () {
-    check(validator: (val) => v.isLength(val, 2), valid: ['ab', 'de', 'abcd', '干𩸽'], invalid: ['', 'a', '𠀋']);
+    check(
+        validator: (val) => v.isLength(val, 2),
+        valid: ['ab', 'de', 'abcd', '干𩸽'],
+        invalid: ['', 'a', '𠀋']);
 
-    check(validator: (val) => v.isLength(val, 2, 3), valid: ['abc', 'de', '干𩸽'], invalid: ['', '𠀋', '千竈通り']);
+    check(
+        validator: (val) => v.isLength(val, 2, 3),
+        valid: ['abc', 'de', '干𩸽'],
+        invalid: ['', '𠀋', '千竈通り']);
   });
 
   test('IsByteLength', () {
-    check(validator: (val) => v.isByteLength(val, 2), valid: ['abc', 'de'], invalid: ['', ' ']);
+    check(
+        validator: (val) => v.isByteLength(val, 2),
+        valid: ['abc', 'de'],
+        invalid: ['', ' ']);
 
-    check(validator: (val) => v.isByteLength(val, 2, 3), valid: ['abc', 'de', '干𩸽'], invalid: ['', 'abcdef']);
+    check(
+        validator: (val) => v.isByteLength(val, 2, 3),
+        valid: ['abc', 'de', '干𩸽'],
+        invalid: ['', 'abcdef']);
   });
 
   test('IsUUID', () {
@@ -309,33 +359,67 @@ main() {
   });
 
   test('IsAfter', () {
-    check(
-        validator: (val) => v.isAfter(val, '2005-12-12'),
-        valid: ['2012-12-12', '2012-02-27 13:27:00', '2022-02-27T14:00:00-0500'],
-        invalid: ['2002-12-12', '2002-02-27 13:27:00', '2002-02-27T14:00:00-0500', ' ', '']);
+    check(validator: (val) => v.isAfter(val, '2005-12-12'), valid: [
+      '2012-12-12',
+      '2012-02-27 13:27:00',
+      '2022-02-27T14:00:00-0500'
+    ], invalid: [
+      '2002-12-12',
+      '2002-02-27 13:27:00',
+      '2002-02-27T14:00:00-0500',
+      ' ',
+      ''
+    ]);
 
-    check(
-        validator: (val) => v.isAfter(val),
-        valid: ['2022-12-12', '2022-02-27 13:27:00', '2022-02-27T14:00:00-0500'],
-        invalid: ['2002-12-12', '2002-02-27 13:27:00', '2002-02-27T14:00:00-0500', ' ', '']);
+    check(validator: (val) => v.isAfter(val), valid: [
+      '2022-12-12',
+      '2022-02-27 13:27:00',
+      '2022-02-27T14:00:00-0500'
+    ], invalid: [
+      '2002-12-12',
+      '2002-02-27 13:27:00',
+      '2002-02-27T14:00:00-0500',
+      ' ',
+      ''
+    ]);
   });
 
   test('IsBefore', () {
-    check(
-        validator: (val) => v.isBefore(val, '2005-12-12'),
-        valid: ['2002-12-12', '2002-02-27 13:27:00', '2002-02-27T14:00:00-0500'],
-        invalid: ['2012-12-12', '2012-02-27 13:27:00', '2022-02-27T14:00:00-0500', ' ', '']);
+    check(validator: (val) => v.isBefore(val, '2005-12-12'), valid: [
+      '2002-12-12',
+      '2002-02-27 13:27:00',
+      '2002-02-27T14:00:00-0500'
+    ], invalid: [
+      '2012-12-12',
+      '2012-02-27 13:27:00',
+      '2022-02-27T14:00:00-0500',
+      ' ',
+      ''
+    ]);
 
-    check(
-        validator: (val) => v.isBefore(val),
-        valid: ['2002-12-12', '2002-02-27 13:27:00', '2002-02-27T14:00:00-0500'],
-        invalid: ['2022-12-12', '2022-02-27 13:27:00', '2022-02-27T14:00:00-0500', ' ', '']);
+    check(validator: (val) => v.isBefore(val), valid: [
+      '2002-12-12',
+      '2002-02-27 13:27:00',
+      '2002-02-27T14:00:00-0500'
+    ], invalid: [
+      '2022-12-12',
+      '2022-02-27 13:27:00',
+      '2022-02-27T14:00:00-0500',
+      ' ',
+      ''
+    ]);
   });
 
   test('IsIn', () {
-    check(validator: (val) => v.isIn(val, 'foobar'), valid: ['foo', 'bar', 'oba', 'foobar', ''], invalid: ['1', ' ']);
+    check(
+        validator: (val) => v.isIn(val, 'foobar'),
+        valid: ['foo', 'bar', 'oba', 'foobar', ''],
+        invalid: ['1', ' ']);
 
-    check(validator: (val) => v.isIn(val, [1, 2, 3]), valid: ['1', '2', '3'], invalid: ['4', ' ']);
+    check(
+        validator: (val) => v.isIn(val, [1, 2, 3]),
+        valid: ['1', '2', '3'],
+        invalid: ['4', ' ']);
   });
 
   test('IsCreditCard', () {
@@ -433,17 +517,27 @@ main() {
   });
 
   test('IsMultibyte', () {
-    check(
-        validator: (val) => v.isMultibyte(val),
-        valid: ['ひらがな・カタカナ、．漢字', 'あいうえお foobar', 'test＠example.com', '1234abcDEｘｙｚ'],
-        invalid: ['abc', '<>@" *.']);
+    check(validator: (val) => v.isMultibyte(val), valid: [
+      'ひらがな・カタカナ、．漢字',
+      'あいうえお foobar',
+      'test＠example.com',
+      '1234abcDEｘｙｚ'
+    ], invalid: [
+      'abc',
+      '<>@" *.'
+    ]);
   });
 
   test('IsAscii', () {
-    check(
-        validator: (val) => v.isAscii(val),
-        valid: ['abc', '<>@" *.'],
-        invalid: ['ひらがな・カタカナ、．漢字', 'あいうえお foobar', 'test＠example.com', '1234abcDEｘｙｚ']);
+    check(validator: (val) => v.isAscii(val), valid: [
+      'abc',
+      '<>@" *.'
+    ], invalid: [
+      'ひらがな・カタカナ、．漢字',
+      'あいうえお foobar',
+      'test＠example.com',
+      '1234abcDEｘｙｚ'
+    ]);
   });
 
   test('IsFullWidth', () {
