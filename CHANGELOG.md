@@ -1,3 +1,7 @@
+# 3.0.0
+temporary release until main authors can publish nnbd version.
+Migrated to nnbd
+
 ## 2.0.1
 
 - Fix `isURL` `hostWhitelist` and `hostBlacklist` inverted logic

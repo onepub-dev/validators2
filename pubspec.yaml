@@ -1,14 +1,13 @@
 name: validators2
 version: 3.0.0
-authors:
-- Luis Vargas <luisvargastijerino@gmail.com>
-- Karan Goel <karan@goel.io>
-description: String validation and sanitization for Dart. 
-  This implementation is a place holder until the project authors have time to release an nnbd version.
 homepage: https://github.com/dart-league/validators
-environment:
+description: String validation and sanitization for Dart. This implementation is a place holder until the project authors have time to release an nnbd version.
+environment: 
   sdk: '>=2.12.0 <3.0.0'
-dependencies:
+dependencies: 
   vin_decoder: ^0.2.0-0
-dev_dependencies:
+dev_dependencies: 
   test: ^1.16.5
+authors: 
+  - Luis Vargas <luisvargastijerino@gmail.com>
+  - Karan Goel <karan@goel.io>

@@ -61,7 +61,9 @@ bool toBoolean(String str, [bool? strict]) {
 
 /// trim characters (whitespace by default) from both sides of the input
 String trim(String str, [String? chars]) {
-  RegExp pattern = (chars != null) ? new RegExp('^[$chars]+|[$chars]+\$') : new RegExp(r'^\s+|\s+$');
+  RegExp pattern = (chars != null)
+      ? new RegExp('^[$chars]+|[$chars]+\$')
+      : new RegExp(r'^\s+|\s+$');
   return str.replaceAll(pattern, '');
 }
 
@@ -98,7 +100,9 @@ String blacklist(String str, String chars) {
 /// If `keep_new_lines` is `true`, newline characters are preserved
 /// `(\n and \r, hex 0xA and 0xD)`.
 String stripLow(String str, [bool? keep_new_lines]) {
-  String chars = keep_new_lines == true ? '\x00-\x09\x0B\x0C\x0E-\x1F\x7F' : '\x00-\x1F\x7F';
+  String chars = keep_new_lines == true
+      ? '\x00-\x09\x0B\x0C\x0E-\x1F\x7F'
+      : '\x00-\x1F\x7F';
   return blacklist(str, chars);
 }
 
