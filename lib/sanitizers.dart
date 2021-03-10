@@ -1,4 +1,4 @@
-import 'package:validators/validators.dart';
+import 'package:validators2/validators.dart';
 
 import 'src/helpers.dart';
 

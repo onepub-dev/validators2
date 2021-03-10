@@ -1,7 +1,7 @@
 library validator_test;
 
 import 'package:test/test.dart';
-import 'package:validators/validators.dart' as v;
+import 'package:validators2/validators.dart' as v;
 
 void check(
     {List valid = const [], List invalid = const [], bool? validator(value)?}) {

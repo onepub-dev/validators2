@@ -1,7 +1,7 @@
 library sanitizer_dart;
 
 import 'package:test/test.dart';
-import 'package:validators/sanitizers.dart' as s;
+import 'package:validators2/sanitizers.dart' as s;
 
 main() {
   test('toString', () {

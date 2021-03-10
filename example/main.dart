@@ -1,5 +1,5 @@
-import 'package:validators/validators.dart';
-import 'package:validators/sanitizers.dart';
+import 'package:validators2/validators.dart';
+import 'package:validators2/sanitizers.dart';
 
 main() {
   print(toString(1));
