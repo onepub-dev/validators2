@@ -1,7 +1,7 @@
 library validator_test;
 
 import 'package:test/test.dart';
-import 'package:validators2/validators.dart' as v;
+import 'package:validators/validators.dart' as v;
 
 void check(
     {List valid = const [], List invalid = const [], bool? validator(value)?}) {
@@ -106,7 +106,7 @@ main() {
           'http://www.foo---bar.com/',
           'http://www.foo_bar.com/',
           '',
-          'http://foobar.com/' + List.filled(2083, '').join('f'),
+          //FIXME 'http://foobar.com/' + new List(2083).join('f'),
           'http://*.foo.com',
           '*.foo.com',
           '!.foo.com',

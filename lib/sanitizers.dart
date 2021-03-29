@@ -1,8 +1,10 @@
-import 'package:validators2/validators.dart';
+import 'dart:core';
+
+import 'package:validators/validators.dart';
 
 import 'src/helpers.dart';
 
-Map _default_normalize_email_options = {'lowercase': true};
+final _default_normalize_email_options = {'lowercase': true};
 
 /// convert the input to a string
 String toString(input) {

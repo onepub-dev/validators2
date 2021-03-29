@@ -581,7 +581,5 @@ bool isPostalCode(String? text, String locale, {bool orElse()?}) {
   final pattern = _postalCodePatterns[locale];
   return pattern != null
       ? pattern.hasMatch(text!)
-      : orElse != null
-          ? orElse()
-          : throw FormatException();
+      : orElse != null ? orElse() : throw FormatException();
 }
