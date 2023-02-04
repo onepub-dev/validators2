@@ -1,7 +1,7 @@
-import 'package:validators/validators.dart';
-import 'package:validators/sanitizers.dart';
+import 'package:validators2/sanitizers.dart';
+import 'package:validators2/validators2.dart';
 
-main() {
+void main() {
   print(toString(1));
   print(trim('  hello '));
   print(toDouble('1.23'));
@@ -9,6 +9,5 @@ main() {
   print(isDate('1988-01-01'));
   print(isNumeric('123'));
   print(isAlphanumeric('abc123'));
-  print(isVIN('WP0ZZZ99ZTS392124'));
   print('isUrl: ${isURL('example', requireTld: false)}');
 }

@@ -1,18 +1,17 @@
 // Helper functions for validator and sanitizer.
 
-shift(List l) {
-  if (l.length >= 1) {
-    var first = l.first;
+String shift(List<String> l) {
+  if (l.isNotEmpty) {
+    final first = l.first;
     l.removeAt(0);
     return first;
   }
-  return null;
+  return '';
 }
 
-Map? merge(Map? obj, defaults) {
-  if (obj == null) {
-    obj = new Map();
-  }
-  defaults.forEach((key, val) => obj!.putIfAbsent(key, () => val));
+Map<String, bool> merge(Map<String, bool> obj, Map<String, bool> defaults) {
+  final merged = <String, bool>{};
+  obj.forEach((key, val) => merged.putIfAbsent(key, () => val));
+  defaults.forEach((key, val) => merged.putIfAbsent(key, () => val));
   return obj;
 }

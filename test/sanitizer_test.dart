@@ -1,9 +1,9 @@
 library sanitizer_dart;
 
 import 'package:test/test.dart';
-import 'package:validators/sanitizers.dart' as s;
+import 'package:validators2/sanitizers.dart' as s;
 
-main() {
+void main() {
   test('toString', () {
     ({
       1: '1',
@@ -49,7 +49,7 @@ main() {
       'true': true,
       'foobar': false,
       '   ': false
-    }).forEach((k, v) => expect(s.toBoolean(k, true), v));
+    }).forEach((k, v) => expect(s.toBoolean(k, strict: true), v));
   });
 
   test('trim', () {
@@ -96,19 +96,19 @@ main() {
   });
 
   test('stripLow keep new lines', () {
-    ({"foo\x0A\x0D": "foo\x0A\x0D", "\x03foo\x0A\x0D": "foo\x0A\x0D"})
-        .forEach((k, v) => expect(s.stripLow(k, true), v));
+    ({'foo\x0A\x0D': 'foo\x0A\x0D', '\x03foo\x0A\x0D': 'foo\x0A\x0D'})
+        .forEach((k, v) => expect(s.stripLow(k, keepNewLines: true), v));
   });
 
   test('stripLow', () {
     ({
-      "foo\x00": "foo",
-      "\x7Ffoo\x02": "foo",
-      "\x01\x09": "",
-      "foo\x0A\x0D": "foo",
-      "perch\u00e9": "perch\u00e9",
-      "\u20ac": "\u20ac",
-      "\u2206\x0A": "\u2206"
+      'foo\x00': 'foo',
+      '\x7Ffoo\x02': 'foo',
+      '\x01\x09': '',
+      'foo\x0A\x0D': 'foo',
+      'perch\u00e9': 'perch\u00e9',
+      '\u20ac': '\u20ac',
+      '\u2206\x0A': '\u2206'
     }).forEach((k, v) => expect(s.stripLow(k), v));
   });
 
@@ -154,6 +154,7 @@ main() {
           'somenamemiddlename@gmail.com',
       'SOME.name.midd.leNa.me.+extension@gmail.com':
           'somenamemiddlename@gmail.com'
-    }).forEach((k, v) => expect(s.normalizeEmail(k, {'lowercase': false}), v));
+    }).forEach((k, v) =>
+        expect(s.normalizeEmail(k, options: {'lowercase': false}), v));
   });
 }
