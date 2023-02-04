@@ -1,3 +1,6 @@
+# 4.0.0
+- Modernised the api to confirm to post 2.12 best practices. There are a number of small breaking changes, the main theme is changing optional args to named args with a default value.
+
 # 3.0.0
 temporary release until main authors can publish nnbd version.
 Migrated to nnbd
