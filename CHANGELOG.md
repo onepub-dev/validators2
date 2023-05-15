@@ -1,3 +1,6 @@
+# 5.0.0
+- upgraded to dart 3.x
+
 # 4.0.0
 - Modernised the api to confirm to post 2.12 best practices. There are a number of small breaking changes, the main theme is changing optional args to named args with a default value.
 

@@ -1,5 +1,3 @@
-library sanitizer_dart;
-
 import 'package:test/test.dart';
 import 'package:validators2/sanitizers.dart' as s;
 

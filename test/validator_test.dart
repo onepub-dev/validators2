@@ -1,5 +1,3 @@
-library validator_test;
-
 import 'package:test/test.dart';
 import 'package:validators2/validators2.dart' as v;
 import 'package:validators2/validators2.dart';
