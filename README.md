@@ -9,6 +9,6 @@ String validation and sanitization for Dart.
 
 ## Documentation
 
-### [Validators](https://onepub.dev/documentation?package=validators2&version=3.0.0)
+### [Validators](https://onepub.dev/documentation?package=validators2)
 
-### [Sanitizers](https://onepub.dev/api_docs/public/xbxpsdavuh/validators2/3.0.0/sanitizers/sanitizers-library.html)
+### [Sanitizers](https://onepub.dev/api_docs/public/xbxpsdavuh/validators2/latest/sanitizers/sanitizers-library.html)
