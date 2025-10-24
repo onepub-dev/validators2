@@ -52,7 +52,7 @@ num toInt(String str, {int radix = 10}) {
 /// Everything except for '0', 'false' and ''
 /// returns `true`. In `strict` mode only '1' and 'true' return `true`.
 bool toBoolean(String str, {bool strict = false}) {
-  if (strict == true) {
+  if (strict) {
     return str == '1' || str == 'true';
   }
   return str != '0' && str != 'false' && str != '';
@@ -97,7 +97,7 @@ String blacklist(String str, String chars) =>
 /// `(\n and \r, hex 0xA and 0xD)`.
 String stripLow(String str, {bool keepNewLines = false}) {
   final chars =
-      keepNewLines == true ? '\x00-\x09\x0B\x0C\x0E-\x1F\x7F' : '\x00-\x1F\x7F';
+      keepNewLines ? '\x00-\x09\x0B\x0C\x0E-\x1F\x7F' : '\x00-\x1F\x7F';
   return blacklist(str, chars);
 }
 
@@ -122,14 +122,14 @@ String escape(String str) => str
 /// `@googlemail.com` addresses are normalized to `@gmail.com`.
 String normalizeEmail(String email, {Map<String, bool> options = const {}}) {
   options = merge(options, _defaultNormalizeEmailOptions);
-  if (isEmail(email) == false) {
+  if (!isEmail(email)) {
     return '';
   }
 
   final parts = email.split('@');
   parts[1] = parts[1].toLowerCase();
 
-  if (options['lowercase'] ?? true == true) {
+  if (options['lowercase'] ?? true) {
     parts[0] = parts[0].toLowerCase();
   }
 
