@@ -9,7 +9,6 @@ var _email = RegExp(
     r"^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$");
 
 var _ipv4Maybe = RegExp(r'^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$');
-var _ipv6 = RegExp(r'^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$');
 
 var _surrogatePairsRegExp = RegExp(r'[\uD800-\uDBFF][\uDC00-\uDFFF]');
 
@@ -73,6 +72,12 @@ bool isEmail(String str) => _email.hasMatch(str.toLowerCase());
 /// * [allowUnderscore] sets if underscores are allowed
 /// * [hostWhitelist] sets the list of allowed hosts
 /// * [hostBlacklist] sets the list of disallowed hosts
+///
+/// Host lists compare DNS names case-insensitively. When either list is
+/// nonempty, hosts must use ASCII spelling; numeric IPv4 spellings must be
+/// canonical dotted decimal (four octets, no leading zeros). Browser IDNA and
+/// IPv4 alias normalization is deliberately not performed before applying
+/// these lists.
 bool isURL(String? str,
     {List<String?> protocols = const ['http', 'https', 'ftp'],
     bool requireTld = true,
@@ -80,15 +85,16 @@ bool isURL(String? str,
     bool allowUnderscore = false,
     List<String> hostWhitelist = const [],
     List<String> hostBlacklist = const []}) {
+  // Browsers can treat a backslash as a slash, changing the parsed authority.
   if (str == null ||
       str.isEmpty ||
       str.length > 2083 ||
+      str.contains(r'\') ||
       str.startsWith('mailto:')) {
     return false;
   }
 
   String protocol;
-  String user;
   String auth;
   String host;
   String hostname;
@@ -139,15 +145,8 @@ bool isURL(String? str,
   split = str.split('@');
   if (split.length > 1) {
     auth = shift(split);
-    if (auth.contains(':')) {
-      final authParts = auth.split(':');
-      user = shift(authParts);
-      if (!RegExp(r'^\S+$').hasMatch(user)) {
-        return false;
-      }
-      if (!RegExp(r'^\S*$').hasMatch(user)) {
-        return false;
-      }
+    if (RegExp(r'\s').hasMatch(auth) || auth.startsWith(':')) {
+      return false;
     }
   }
 
@@ -155,6 +154,11 @@ bool isURL(String? str,
   hostname = split.join('@');
   split = hostname.split(':');
   host = shift(split);
+  if ((hostWhitelist.isNotEmpty || hostBlacklist.isNotEmpty) &&
+      !_isUnambiguousListHost(host)) {
+    return false;
+  }
+  host = host.toLowerCase();
   if (split.isNotEmpty) {
     portStr = split.join(':');
     try {
@@ -174,32 +178,106 @@ bool isURL(String? str,
     return false;
   }
 
-  if (hostWhitelist.isNotEmpty && !hostWhitelist.contains(host)) {
+  if (hostWhitelist.isNotEmpty &&
+      !hostWhitelist.any((allowed) => allowed.toLowerCase() == host)) {
     return false;
   }
 
-  if (hostBlacklist.isNotEmpty && hostBlacklist.contains(host)) {
+  if (hostBlacklist.any((blocked) => blocked.toLowerCase() == host)) {
     return false;
   }
 
   return true;
 }
 
+bool _isUnambiguousListHost(String host) {
+  // Check the original spelling: Unicode case folding can produce ASCII.
+  if (_multibyte.hasMatch(host)) {
+    return false;
+  }
+  // Browsers accept one to four decimal, octal or hexadecimal IPv4 components.
+  // Reject numeric spellings conservatively, even if they overflow or are
+  // invalid in a browser, unless already canonical dotted decimal IPv4.
+  final numericHost = RegExp(
+      r'^(?:[0-9]+|0x[0-9a-f]*)(?:\.(?:[0-9]+|0x[0-9a-f]*))*$',
+      caseSensitive: false);
+  if (!numericHost.hasMatch(host)) {
+    return true;
+  }
+  return isIP(host, version: IPVersion.ipV4) &&
+      host
+          .split('.')
+          .every((part) => part.length == 1 || !part.startsWith('0'));
+}
+
 /// check if the string [str] is IP [version] 4 or 6
 ///
-/// * [version] is a String or an `int`.
+/// * [version] selects IPv4, IPv6, or either version.
 bool isIP(String? str, {IPVersion version = IPVersion.any}) {
+  if (str == null) {
+    return false;
+  }
   if (version == IPVersion.any) {
     return isIP(str, version: IPVersion.ipV4) ||
         isIP(str, version: IPVersion.ipV6);
   } else if (version == IPVersion.ipV4) {
-    if (!_ipv4Maybe.hasMatch(str!)) {
+    if (!_ipv4Maybe.hasMatch(str)) {
       return false;
     }
     final parts = str.split('.')..sort((a, b) => int.parse(a) - int.parse(b));
     return int.parse(parts[3]) <= 255;
   }
-  return version == IPVersion.ipV6 && _ipv6.hasMatch(str!);
+  return version == IPVersion.ipV6 && _isIPv6(str);
+}
+
+bool _isIPv6(String str) {
+  // A dotted decimal tail occupies two of the eight 16-bit groups.
+  if (str.contains('.')) {
+    final separator = str.lastIndexOf(':');
+    if (separator < 0) {
+      return false;
+    }
+    final octets = str.substring(separator + 1).split('.');
+    if (octets.length != 4) {
+      return false;
+    }
+    for (final octet in octets) {
+      if (octet.isEmpty ||
+          octet.length > 3 ||
+          (octet.length > 1 && octet.startsWith('0')) ||
+          octet.codeUnits.any((c) => c < 48 || c > 57) ||
+          int.parse(octet) > 255) {
+        return false;
+      }
+    }
+    str = '${str.substring(0, separator + 1)}0:0';
+  }
+
+  final halves = str.split('::');
+  if (halves.length > 2) {
+    return false;
+  }
+  var groups = 0;
+  for (final half in halves) {
+    if (half.isEmpty && halves.length == 2) {
+      continue;
+    }
+    for (final group in half.split(':')) {
+      if (group.isEmpty || group.length > 4) {
+        return false;
+      }
+      for (final c in group.codeUnits) {
+        if (!(c >= 48 && c <= 57) &&
+            !(c >= 65 && c <= 70) &&
+            !(c >= 97 && c <= 102)) {
+          return false;
+        }
+      }
+      groups++;
+    }
+  }
+  // Compression must replace at least one group, and may occur only once.
+  return halves.length == 2 ? groups < 8 : groups == 8;
 }
 
 /// check if the string [str] is a fully qualified
@@ -210,20 +288,27 @@ bool isIP(String? str, {IPVersion version = IPVersion.any}) {
 bool isFQDN(String str,
     {bool requireTld = true, bool allowUnderscores = false}) {
   final parts = str.split('.');
+  if (parts.any((part) => part.isEmpty || part.length > 63) ||
+      RegExp(r'\s').hasMatch(str)) {
+    return false;
+  }
   if (requireTld) {
     final tld = parts.removeLast();
-    if (parts.isEmpty || !RegExp(r'^[a-z]{2,}$').hasMatch(tld)) {
+    if (parts.isEmpty || !RegExp(r'^[a-zA-Z]{2,}$').hasMatch(tld)) {
       return false;
     }
   }
 
+  final labelPattern = allowUnderscores
+      ? RegExp(r'^[a-zA-Z\u00a1-\uffff0-9_-]+$')
+      : RegExp(r'^[a-zA-Z\u00a1-\uffff0-9-]+$');
   for (final part in parts) {
     if (allowUnderscores) {
       if (part.contains('__')) {
         return false;
       }
     }
-    if (!RegExp(r'^[a-z\\u00a1-\\uffff0-9-]+$').hasMatch(part)) {
+    if (!labelPattern.hasMatch(part)) {
       return false;
     }
     if (part[0] == '-' ||
