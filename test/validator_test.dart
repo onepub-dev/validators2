@@ -140,14 +140,18 @@ void main() {
     expect(v.isURL('example', requireTld: false), true);
 
     expect(
-        v.isURL('www.example.com', hostWhitelist: ['www.example.com']), true);
+        v.isURL('https://www.example.com', hostWhitelist: ['www.example.com']),
+        true);
     expect(
-        v.isURL('www.example.com', hostWhitelist: ['www.another.com']), false);
+        v.isURL('https://www.example.com', hostWhitelist: ['www.another.com']),
+        false);
 
     expect(
-        v.isURL('www.example.com', hostBlacklist: ['www.example.com']), false);
+        v.isURL('https://www.example.com', hostBlacklist: ['www.example.com']),
+        false);
     expect(
-        v.isURL('www.example.com', hostBlacklist: ['www.another.com']), true);
+        v.isURL('https://www.example.com', hostBlacklist: ['www.another.com']),
+        true);
   });
 
   test('IsIP', () {

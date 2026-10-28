@@ -73,11 +73,19 @@ bool isEmail(String str) => _email.hasMatch(str.toLowerCase());
 /// * [hostWhitelist] sets the list of allowed hosts
 /// * [hostBlacklist] sets the list of disallowed hosts
 ///
-/// Host lists compare DNS names case-insensitively. When either list is
-/// nonempty, hosts must use ASCII spelling; numeric IPv4 spellings must be
-/// canonical dotted decimal (four octets, no leading zeros). Browser IDNA and
-/// IPv4 alias normalization is deliberately not performed before applying
-/// these lists.
+/// When either host list is nonempty, [str] must be an absolute URL with an
+/// explicit `http://`, `https://` or `ftp://` scheme, even if [requireProtocol]
+/// is false. The scheme must also be allowed by [protocols]. With both lists
+/// empty, [requireProtocol] and [protocols] retain their usual behavior.
+///
+/// Host lists compare only hostnames, case-insensitively; ports are ignored.
+/// With a nonempty list, URL hosts must use ASCII spelling, and numeric IPv4
+/// spellings must be canonical dotted decimal (four octets, no leading zeros).
+/// Supply canonical ASCII hostnames in both lists, such as `example.com`,
+/// `xn--bcher-kva.com` or `127.0.0.1`, without schemes, ports or paths. List
+/// entries are only lowercased: IDNA and IPv4 alias normalization is not
+/// performed, so Unicode or numeric-alias entries do not match their canonical
+/// equivalents.
 bool isURL(String? str,
     {List<String?> protocols = const ['http', 'https', 'ftp'],
     bool requireTld = true,
@@ -105,14 +113,17 @@ bool isURL(String? str,
   String hash;
   List<String> split;
 
-  // check protocol
+  final hasHostLists = hostWhitelist.isNotEmpty || hostBlacklist.isNotEmpty;
+
+  // Host policies require an absolute URL with a supported authority scheme.
   split = str.split('://');
   if (split.length > 1) {
     protocol = shift(split);
-    if (!protocols.contains(protocol)) {
+    if (!protocols.contains(protocol) ||
+        (hasHostLists && !const ['http', 'https', 'ftp'].contains(protocol))) {
       return false;
     }
-  } else if (requireProtocol) {
+  } else if (requireProtocol || hasHostLists) {
     return false;
   }
   str = split.join('://');
@@ -154,8 +165,7 @@ bool isURL(String? str,
   hostname = split.join('@');
   split = hostname.split(':');
   host = shift(split);
-  if ((hostWhitelist.isNotEmpty || hostBlacklist.isNotEmpty) &&
-      !_isUnambiguousListHost(host)) {
+  if (hasHostLists && !_isUnambiguousListHost(host)) {
     return false;
   }
   host = host.toLowerCase();

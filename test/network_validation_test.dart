@@ -3,6 +3,95 @@ import 'package:validators2/validators2.dart';
 
 void main() {
   group('URL authority validation', () {
+    test('either host list requires an explicit supported absolute scheme', () {
+      for (final url in [
+        'allowed.com',
+        'allowed.com:8080/path',
+        '//allowed.com/path',
+        'http:allowed.com',
+        'https:/allowed.com',
+        'custom://allowed.com/path',
+        'file://localhost/path',
+        'ws://allowed.com/path',
+      ]) {
+        for (final whitelist in [false, true]) {
+          expect(
+            isURL(url,
+                protocols: ['http', 'https', 'ftp', 'custom', 'file', 'ws'],
+                hostWhitelist: whitelist ? ['allowed.com', 'localhost'] : [],
+                hostBlacklist: whitelist ? [] : ['unrelated.example']),
+            isFalse,
+            reason: '${whitelist ? 'whitelist' : 'blacklist'}: $url',
+          );
+        }
+      }
+    });
+
+    test('host lists allow supported schemes and compare hosts without ports',
+        () {
+      for (final scheme in ['http', 'https', 'ftp']) {
+        for (final port in ['', ':8080']) {
+          final url = '$scheme://ALLOWED.COM$port/path?query=value#fragment';
+          expect(isURL(url, hostWhitelist: ['allowed.com']), isTrue,
+              reason: 'matching whitelist: $url');
+          expect(isURL(url, hostWhitelist: ['unrelated.example']), isFalse,
+              reason: 'unrelated whitelist: $url');
+          expect(isURL(url, hostBlacklist: ['allowed.com']), isFalse,
+              reason: 'matching blacklist: $url');
+          expect(isURL(url, hostBlacklist: ['unrelated.example']), isTrue,
+              reason: 'unrelated blacklist: $url');
+          expect(
+            isURL(url,
+                hostWhitelist: ['allowed.com'],
+                hostBlacklist: ['unrelated.example']),
+            isTrue,
+            reason: 'both lists: $url',
+          );
+          expect(
+            isURL(url, protocols: [], hostBlacklist: ['unrelated.example']),
+            isFalse,
+            reason: 'protocols still restrict schemes: $url',
+          );
+        }
+      }
+      expect(
+        isURL('http://allowed.com',
+            protocols: ['https'], hostWhitelist: ['allowed.com']),
+        isFalse,
+      );
+    });
+
+    test('empty host lists preserve protocol options', () {
+      for (final url in [
+        'allowed.com',
+        'allowed.com:8080/path',
+        'custom://allowed.com/path',
+        'file://localhost/path',
+        'ws://allowed.com/path',
+      ]) {
+        expect(
+          isURL(url, protocols: ['custom', 'file', 'ws']),
+          isTrue,
+          reason: 'omitted lists: $url',
+        );
+        expect(
+          isURL(url,
+              protocols: ['custom', 'file', 'ws'],
+              hostWhitelist: [],
+              hostBlacklist: []),
+          isTrue,
+          reason: 'explicit empty lists: $url',
+        );
+      }
+      expect(isURL('allowed.com', requireProtocol: true), isFalse);
+      expect(isURL('custom://allowed.com'), isFalse);
+      expect(
+        isURL('custom://allowed.com',
+            protocols: ['custom'], requireProtocol: true),
+        isTrue,
+      );
+    });
+
     test('rejects browser backslash authority mismatch', () {
       expect(
         isURL(r'https://evil.com\@allowed.com', hostWhitelist: ['allowed.com']),
