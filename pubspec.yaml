@@ -1,5 +1,5 @@
 name: validators2
-version: 5.1.0
+version: 5.1.1
 homepage: https://github.com/onepub-dev/validators2
 description: String validation and sanitization for Dart.
 repository: https://github.com/onepub-dev/validators2

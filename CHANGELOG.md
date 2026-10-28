@@ -1,3 +1,9 @@
+# 5.1.1
+- Fix excessive backtracking in `isEmail` for domains with many short labels.
+- Enforce domain label boundaries, rejecting empty labels, punctuation at label
+  boundaries, and numeric starts to final labels that were previously accepted
+  because dots could be consumed inside a label.
+
 # 5.1.0
 - upgraded packges, fixed lints.
 

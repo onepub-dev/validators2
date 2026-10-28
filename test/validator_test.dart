@@ -57,6 +57,30 @@ void main() {
     ]);
   });
 
+  test('IsEmail domain label boundaries', () {
+    check<String>(validator: v.isEmail, valid: [
+      'user@a.b.c.d.e.com',
+      'user@1.2.3.example',
+      'user@a-b.c_d.e~f.com',
+      'user@m端ller.example',
+      'USER@EXAMPLE.COM',
+      '"quoted.local"@example.com',
+    ], invalid: [
+      'user@a..b.com',
+      'user@a...com',
+      'user@a.b.c.',
+      'user@a.b.c.!',
+      'user@a.b.123',
+      'user@a.b.1c',
+      'user@a.-b.com',
+      'user@a.b-.com',
+      'user@a._b.com',
+      'user@a.b_.com',
+      'user@a.~b.com',
+      'user@a.b~.com',
+    ]);
+  });
+
   test('IsURL', () {
     check(validator: v.isURL, valid: [
       'foobar.com',
