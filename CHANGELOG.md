@@ -3,6 +3,11 @@
 - Enforce domain label boundaries, rejecting empty labels, punctuation at label
   boundaries, and numeric starts to final labels that were previously accepted
   because dots could be consumed inside a label.
+- Reject URL spellings that browsers interpret with a different host, including
+  backslashes and noncanonical numeric or Unicode hosts when a host list is set.
+  Host lists now compare ASCII DNS names without case sensitivity.
+- Correct FQDN label validation and IPv6 syntax checks, including compressed
+  addresses and IPv4 tails. `isIP(null)` now returns false.
 
 # 5.1.0
 - upgraded packges, fixed lints.
